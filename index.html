@@ -1,0 +1,168 @@
+<!Doctype html>
+
+<html>
+<head>
+    <title>Appointments</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-bootstrap/0.5pre/css/custom-theme/jquery-ui-1.10.0.custom.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-lg-8 col-lg-offset-2">
+
+
+            <p class="lead">Appointment App</p>
+            <div>
+
+                <button type="button" class="btn btn-primary" id="appointment-show-add">NEW</button>
+
+            </div>
+
+            <form id="appointment-addform" style="display: none" method="post" action="dao/ReadWrite.pl">
+                <button type="submit" class="btn btn-success" id="appointment-submit" >ADD</button>
+                <button type="button" class="btn btn-danger" id="appointment-cancel" >CANCEL</button>
+                <div class="messages"><span style="color:red" id="errormessage"></span></div>
+                <div class="messages"><span style="color:green" id="successmessage"></span></div>
+                <div class="controls" >
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="appointment-date">DATE *</label>
+                                <input id="appointment-date"  name="date" class="form-control" placeholder="Please enter date *" required="required" >
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="appointment-time">TIME *</label>
+                                <input id="appointment-time" type="time" name="time" class="form-control" placeholder="Please enter time *" required="required" >
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="desc">DESC *</label>
+                                <input id="desc" type="text" name="description" class="form-control" placeholder="Please enter description *" required="required" data-error="Description is required.">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </form>
+            <div class="row">
+                </br><br>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                <input type="text" id="appointment-search" class="form-control">
+                </div>
+                <div class="col-lg-2">
+                <button type="button" class="btn btn-success" onclick="getAppointments()">SEARCH</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="row">
+        </br>
+    </div>
+    <div class="row ">
+        <div class="col-lg-8 col-lg-offset-2">
+
+            <table class="table table-striped" id="product_table">
+                <thead class="text-primary">
+                <tr>
+                    <th>DATE</th>
+                    <th>TIME</th>
+                    <th>DESCRIPTION</th>
+                </tr>
+
+                </thead>
+                <tbody id="data-grid">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js" integrity="sha256-xI/qyl9vpwWFOXz7+x/9WkG5j/SVnSw21viy8fWwbeE=" crossorigin="anonymous"></script>
+
+
+
+<script>
+
+    $(document).ready(function() {
+        //load appointment data
+        getAppointments();
+
+        //button clicks for add form display/hide
+        $('#appointment-show-add').click(function() {
+            $('#appointment-addform').show();
+            $('#appointment-show-add').hide();
+        });
+        $('#appointment-cancel').click(function() {
+            $('#appointment-show-add').show();
+            $('#appointment-addform').hide().trigger('reset');
+        });
+
+
+        //Date picker with past date validation
+        $( "#appointment-date" ).datepicker({
+            altFormat: "yy-mm-dd",
+            minDate: new Date(),
+        });
+    });
+
+
+    function getAppointments() {
+
+        var searchText = $("#appointment-search").val();
+        $.ajax({
+            url:'dao/ReadWrite.pl',
+            type: "post",
+            data: {search:searchText},
+            success: function (data) {
+                var dat = jQuery.parseJSON(data);
+                console.log(data);
+                $("#data-grid").html("");
+                    $.each(dat, function (k,v) {
+                        $("#data-grid").append("<tr><td>"+v['date']+"</td><td>"+v['time']+"</td><td>"+v['description']+"</td>"+
+                            "</tr> ");
+                    });
+            },
+            error:function(m){
+                    console.log(m);
+            }
+
+        });
+
+
+    }
+
+</script>
+
+</body>
+</html>
